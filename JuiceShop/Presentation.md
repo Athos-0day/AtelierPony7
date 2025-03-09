@@ -237,3 +237,59 @@ Le Poison Null Byte est une technique puissante pour contourner les restrictions
 
 Cela illustre l'importance de vérifier et de sécuriser correctement les mécanismes de validation des fichiers et des entrées utilisateurs afin d'éviter des vulnérabilités telles que l'**exploitation de données sensibles**.
 
+# Sixième étape de l'investigation : Accéder au panier des autres utilisateurs et trouver une page administrative (Broken Access Control)
+
+## Objectif
+
+L'objectif de cette étape est de démontrer une vulnérabilité de **contrôle d'accès défectueux** (Broken Access Control). En interceptant une requête sur Burp Suite, nous allons tenter d'accéder au panier d'un autre utilisateur et découvrir une page administrative cachée. Cela illustre l'importance de mettre en place un contrôle d'accès rigoureux pour protéger les données et les fonctionnalités sensibles des utilisateurs.
+
+## Étape 1 : Interception de la requête avec Burp Suite
+
+1. **Configurer Burp Suite** :
+   - Lancez **Burp Suite** et configurez-le pour intercepter le trafic HTTP/HTTPS entre votre navigateur et le serveur de l'application.
+   - Assurez-vous que le proxy de Burp Suite est activé et que votre navigateur est configuré pour utiliser ce proxy.
+
+2. **Naviguer sur le site en tant qu'utilisateur authentifié** :
+   - Connectez-vous avec vos identifiants à l'application, puis ajoutez des articles à votre panier. Cela génère des requêtes HTTP/HTTPS qui seront envoyées au serveur.
+   - Observez le trafic dans l'onglet **"Proxy"** de Burp Suite pour identifier la requête envoyée lors de l'ajout d'articles au panier.
+
+3. **Capturer et analyser la requête** :
+   - Repérez la requête qui contient des informations sur votre panier, généralement une requête **POST** ou **GET** avec un paramètre lié au panier (par exemple, `cart_id` ou `user_id`).
+   - Inspectez cette requête pour repérer des informations sensibles, comme un identifiant de session, un identifiant utilisateur, ou un identifiant unique pour votre panier.
+
+## Étape 2 : Manipuler la requête pour accéder au panier d'un autre utilisateur
+
+1. **Modifier l'identifiant de l'utilisateur** :
+   - Une fois que vous avez intercepté la requête du panier, vous pouvez modifier certains paramètres pour tenter d'accéder au panier d'un autre utilisateur.
+   - Par exemple, si la requête contient un paramètre **`user_id`** ou **`cart_id`**, vous pouvez essayer de remplacer cet identifiant par celui d'un autre utilisateur.
+   - Vous pouvez soit deviner l'identifiant d'un autre utilisateur (en l'extrayant de la page HTML ou d'une autre source), soit manipuler l'URL pour remplacer l'identifiant de l'utilisateur actuel.
+
+2. **Rejouer la requête modifiée** :
+   - Après avoir modifié la requête, envoyez-la à nouveau au serveur via Burp Suite et observez la réponse.
+   - Si le contrôle d'accès est mal configuré, vous serez probablement capable d'accéder au panier d'un autre utilisateur, ce qui constitue une faille de sécurité.
+
+## Étape 3 : Recherche d'une page administrative
+
+1. **Explorer d'autres URL possibles** :
+   - Pendant l'examen du trafic, cherchez des URL ou des paramètres qui pourraient vous conduire à une page administrative, comme **`/admin`**, **`/dashboard`**, **`/settings`**, ou des URL similaires.
+   - Modifiez les paramètres de la requête pour tester l'accès à ces pages. Par exemple, si vous trouvez un paramètre comme **`user_id`**, essayez de remplacer cet identifiant par des valeurs spécifiques pour voir si vous pouvez accéder à des pages d'administration.
+
+2. **Analyser les réponses du serveur** :
+   - Si vous accédez à une page contenant des informations administratives, cela pourrait indiquer qu'il n'y a pas de contrôle d'accès approprié en place. Ces pages peuvent contenir des informations sensibles sur l'administration du site, comme la gestion des utilisateurs, les paramètres du système, ou les données confidentielles.
+
+## Pourquoi cette méthode fonctionne-t-elle ?
+
+Cette méthode exploite le manque de contrôle d'accès approprié, ce qui est un problème courant dans les applications web. Lorsqu'un contrôle d'accès est mal implémenté, il est possible de manipuler les paramètres dans les requêtes HTTP pour accéder à des ressources qui devraient être protégées, comme le panier d'un autre utilisateur ou une page administrative.
+
+- **Contrôle d'accès défectueux** : Cela signifie qu'un utilisateur malveillant peut accéder à des ressources et données qui ne lui sont pas destinées, simplement en manipulant les paramètres de la requête.
+- **Exploitation des identifiants** : Dans ce cas, le manque de vérification des permissions sur les requêtes permet à un utilisateur de visualiser ou de modifier les données d'un autre utilisateur.
+
+## Conclusion
+
+Cette étape illustre l'importance de la mise en place d'un **contrôle d'accès strict** sur toutes les ressources sensibles. Les contrôles d'accès doivent être vérifiés côté serveur pour s'assurer que chaque utilisateur n'a accès qu'à ses propres données et à celles pour lesquelles il a des autorisations spécifiques. Le contrôle d'accès doit être basé sur les rôles et les permissions, et il est crucial de ne jamais faire confiance aux paramètres envoyés par l'utilisateur (comme l'identifiant utilisateur ou l'identifiant du panier).
+
+Les bonnes pratiques pour éviter le **Broken Access Control** incluent :
+- Vérification des permissions sur le côté serveur pour chaque requête.
+- Implémentation d'un contrôle d'accès basé sur les rôles (RBAC) pour déterminer les permissions des utilisateurs.
+- Utilisation de mécanismes d'authentification forts pour garantir que les utilisateurs ne peuvent pas modifier ou intercepter les données des autres.
+
