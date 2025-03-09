@@ -23,7 +23,7 @@ Dans cette étape de l'investigation, l'objectif est de se connecter d'abord au 
 
 Vous pouvez utiliser **Burp Suite** pour intercepter les requêtes et analyser le trafic HTTP, ou manipuler directement les champs du formulaire de connexion pour effectuer l'injection SQL.
 
-### Étape 1 : Connexion au compte administrateur
+## Étape 1 : Connexion au compte administrateur
 
 1. **Accédez à la page de connexion** :
    - Ouvrez le site vulnérable.
@@ -41,7 +41,7 @@ Vous pouvez utiliser **Burp Suite** pour intercepter les requêtes et analyser l
    - Soumettez le formulaire de connexion avec le payload injecté. Burp Suite vous permettra de capturer la requête et de l'analyser en détail avant de l'envoyer au serveur.
    - Modifiez la requête si nécessaire pour affiner l'injection SQL et valider votre accès.
 
-### Étape 2 : Connexion au compte de Bender
+## Étape 2 : Connexion au compte de Bender
 
 Après avoir réussi à vous connecter en tant qu'administrateur, la prochaine étape consiste à accéder au **compte de Bender**. 
 
@@ -58,11 +58,11 @@ Après avoir réussi à vous connecter en tant qu'administrateur, la prochaine �
 3. **Utilisation de Burp Suite pour intercepter et analyser la requête** :
    - Si vous utilisez **Burp Suite**, vous pouvez intercepter et analyser la requête envoyée lors de la tentative de connexion au compte de Bender. Cela vous permettra de voir comment la requête SQL est envoyée et d'adapter votre payload en conséquence.
 
-### Pourquoi cette étape est cruciale ?
+## Pourquoi cette étape est cruciale ?
 
 Les attaques par injection SQL sont parmi les vulnérabilités les plus courantes et les plus dangereuses dans les applications web. Les participants apprendront ainsi à identifier ces vulnérabilités et à comprendre les conséquences des failles d'authentification.
 
-### Résumé des étapes
+## Résumé des étapes
 
 - **Objectif** : Se connecter aux comptes administrateur et Bender en exploitant des failles d'injection SQL.
 - **Méthode** :
@@ -121,5 +121,70 @@ Cette étape met en lumière les dangers des mots de passe faibles, en particuli
   - Interception de la requête de connexion via Burp Suite.
   - Configuration de Burp Suite Intruder pour envoyer des requêtes de force brute avec la liste de mots de passe.
   - Analyse des réponses du serveur pour identifier un mot de passe valide.
+
+# Quatrième étape de l'investigation : Accéder à des informations sensibles (Sensitive Data Exposure)
+
+## Objectif
+
+L'objectif de cette étape est d'illustrer la notion d'**exposition de données sensibles** (Sensitive Data Exposure) en essayant d'accéder à des informations que vous ne devriez pas voir en tant qu'utilisateur ordinaire. Cela peut inclure des données confidentielles comme des informations personnelles, des mots de passe, des clés d'API, des données bancaires ou des fichiers sensibles qui sont mal protégés sur le site. Cette étape met en évidence l'importance de sécuriser les données sensibles pour éviter qu'elles ne soient exposées à des utilisateurs non autorisés.
+
+## Étape 1 : Exploration des pages et des répertoires
+
+1. **Explorer les URL et les paramètres de l'application** :
+   - Commencez par explorer l'application web comme un utilisateur normal. Allez sur les pages accessibles sans authentification et examinez les URL.
+   - Recherchez des paramètres sensibles dans l'URL, tels que des identifiants utilisateur, des tokens, ou d'autres informations qui pourraient vous permettre d'accéder à des données sensibles si elles sont mal protégées.
+
+2. **Manipulation des URL et accès à des zones non protégées** :
+   - Tentez de manipuler les URL en modifiant certains paramètres ou en accédant à des ressources protégées par des règles d'accès non strictes.
+   - Essayez de deviner des chemins ou des fichiers qui pourraient contenir des informations sensibles, comme `/admin/config`, `/user/data`, ou `/backup`, ou `/ftp`.
+
+## Étape 2 : Inspection des réponses du serveur
+
+1. **Analyser les réponses du serveur** :
+   - Observez attentivement les réponses du serveur lors de vos tentatives d'accès. Si le serveur renvoie des informations qui ne sont pas normalement accessibles, cela peut indiquer une vulnérabilité d'exposition de données sensibles.
+   - Par exemple, vous pourriez obtenir des détails sur des utilisateurs, des fichiers de configuration contenant des mots de passe en texte clair, ou des données sensibles comme des numéros de carte de crédit ou des informations bancaires.
+
+2. **Rechercher des fichiers de configuration mal sécurisés** :
+   - Vérifiez si des fichiers de configuration importants (par exemple, des fichiers de configuration du serveur, des clés API ou des bases de données) sont accessibles sans restrictions appropriées.
+   - Par exemple, si des fichiers comme `config.php`, `.env` ou `backup.tar.gz` sont présents dans les répertoires publics ou accessibles via l'URL, cela peut constituer une grave exposition de données sensibles.
+
+## Étape 3 : Accès aux données sensibles (exemple avec un fichier de sauvegarde)
+
+1. **Explorer les répertoires accessibles** :
+   - Si l'application met à disposition des répertoires de sauvegarde ou des répertoires non protégés par une authentification stricte, explorez-les à la recherche de fichiers sensibles.
+   - Par exemple, si un fichier de sauvegarde (comme `backup.zip` ou `database.sql`) est accessible, vous pourriez y trouver des informations sensibles telles que des identifiants, des mots de passe, des données personnelles, etc.
+
+2. **Téléchargement de fichiers sensibles** :
+   - Si vous trouvez un fichier qui semble contenir des données sensibles, téléchargez-le (si possible) et examinez-le pour vérifier qu'il contient des informations confidentielles qui ne devraient pas être accessibles à un utilisateur non autorisé.
+   - Vérifiez le contenu de ces fichiers pour identifier des données sensibles comme des mots de passe non cryptés, des informations personnelles des utilisateurs, ou d'autres secrets.
+
+## Étape 4 : Identification de la vulnérabilité d'exposition de données sensibles
+
+1. **Exposition de données sensibles dans les réponses HTTP** :
+   - Parfois, des informations sensibles peuvent être renvoyées directement dans les réponses HTTP, par exemple dans des cookies, des en-têtes HTTP ou des pages d'erreur. 
+   - Si vous trouvez des informations sensibles dans ces réponses, cela démontre que les données ne sont pas correctement protégées et sont exposées de manière involontaire.
+
+2. **Réflexion sur la sécurité des données sensibles** :
+   - L'objectif de cette étape est de démontrer comment des données sensibles peuvent être exposées à des utilisateurs non autorisés, souvent à cause de mauvaises configurations ou de mauvaises pratiques de sécurité.
+   - Une fois que vous avez trouvé des données sensibles, il est important de réfléchir à la manière dont elles devraient être protégées, par exemple en utilisant le cryptage des données sensibles, en mettant en place des contrôles d'accès stricts, ou en validant correctement les permissions d'accès à certains fichiers.
+
+### Pourquoi cette étape est importante ?
+
+L'exposition de données sensibles est une vulnérabilité critique qui peut entraîner des conséquences graves, telles que le vol d'identité, la fraude financière, ou la compromission de systèmes sensibles. Les entreprises doivent être conscientes des risques associés à l'exposition non intentionnelle de données sensibles et mettre en œuvre des mécanismes de sécurité solides pour protéger ces informations.
+
+Les bonnes pratiques pour éviter l'exposition de données sensibles incluent :
+- **Cryptage des données sensibles** en transit (SSL/TLS) et au repos (base de données cryptées).
+- **Contrôles d'accès stricts** pour limiter les utilisateurs autorisés à accéder à des données sensibles.
+- **Mise en œuvre de l'authentification forte** pour les utilisateurs qui accèdent à des informations sensibles.
+- **Validation des permissions** et sécurisation des répertoires et fichiers sensibles pour empêcher leur accès non autorisé.
+
+## Résumé des étapes
+
+- **Objectif** : Identifier et accéder à des données sensibles qui ne devraient pas être visibles pour un utilisateur ordinaire.
+- **Méthode** :
+  - Exploration des URL et manipulation des paramètres pour accéder à des répertoires ou fichiers sensibles.
+  - Inspection des réponses du serveur pour détecter la présence d'informations sensibles.
+  - Téléchargement de fichiers sensibles ou accès à des fichiers mal sécurisés (par exemple, sauvegardes, fichiers de configuration).
+  - Analyse des risques d'exposition de données sensibles et réflexion sur les mesures de sécurité nécessaires.
 
 
