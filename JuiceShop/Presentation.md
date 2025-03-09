@@ -62,13 +62,64 @@ Après avoir réussi à vous connecter en tant qu'administrateur, la prochaine �
 
 Les attaques par injection SQL sont parmi les vulnérabilités les plus courantes et les plus dangereuses dans les applications web. Les participants apprendront ainsi à identifier ces vulnérabilités et à comprendre les conséquences des failles d'authentification.
 
----
-
-## Résumé des étapes
+### Résumé des étapes
 
 - **Objectif** : Se connecter aux comptes administrateur et Bender en exploitant des failles d'injection SQL.
 - **Méthode** :
   - Injection SQL dans les champs de saisie du formulaire de connexion.
   - Utilisation de **Burp Suite** pour intercepter et analyser les requêtes HTTP (optionnel).
   - Manipulation des données envoyées au serveur pour contourner les mécanismes d'authentification.
+
+# Troisième étape de l'investigation : Connexion au compte administrateur en utilisant Burp Suite Intruder
+
+## Objectif
+
+Dans cette étape, vous allez utiliser **Burp Suite Intruder** pour effectuer une attaque par force brute sur le formulaire de connexion, en tentant de deviner le mot de passe du compte **administrateur** à partir d'une liste de mots de passe populaires (fichier `best1050.txt`). Cette étape met en évidence les vulnérabilités liées à l'authentification, en particulier l'utilisation de mots de passe faibles pour des comptes avec des privilèges importants.
+
+## Étape 1 : Configuration de Burp Suite pour intercepter la requête
+
+1. **Accédez à la page de connexion** :
+   - Comme dans les étapes précédentes, ouvrez le site vulnérable.
+   - Localisez le formulaire de connexion où vous entrez votre **email** et **mot de passe**.
+
+2. **Interceptez la requête de connexion** :
+   - Activez **Burp Suite** et configurez-le pour intercepter les requêtes HTTP.
+   - Soumettez un formulaire avec des informations valides (même si l'email et le mot de passe sont incorrects pour cette étape, l’objectif est simplement de capturer la requête).
+   - Burp Suite interceptera la requête POST envoyée au serveur avec les données de connexion.
+
+3. **Envoyez la requête à Intruder** :
+   - Une fois la requête interceptée, envoyez-la à l'outil **Intruder** de Burp Suite pour automatiser l'attaque de force brute.
+   - Dans l'onglet **Intruder**, identifiez la partie de la requête qui contient le **mot de passe** et sélectionnez cette zone comme **position à attaquer**.
+
+## Étape 2 : Configuration de l'attaque par force brute
+
+1. **Définir la liste des mots de passe** :
+   - Téléchargez le fichier de liste de mots de passe `best1050.txt`. Ce fichier contient une série de mots de passe couramment utilisés, classés par fréquence.
+   - Dans Burp Suite, configurez Intruder pour utiliser cette liste de mots de passe dans l’attaque de force brute. Cela permettra de tester plusieurs mots de passe populaires pour trouver celui du compte administrateur.
+
+2. **Lancer l'attaque avec Burp Suite Intruder** :
+   - Configurez Intruder pour envoyer la requête avec chaque mot de passe de la liste `best1050.txt`.
+   - L'attaque par force brute va maintenant tenter d'envoyer différentes combinaisons de mots de passe au serveur pour tenter de se connecter avec un mot de passe valide pour l'administrateur.
+
+## Étape 3 : Analyser les résultats
+
+1. **Observer la réponse du serveur** :
+   - Une fois l'attaque lancée, Burp Suite vous montrera les réponses du serveur pour chaque tentative de mot de passe.
+   - En fonction de la réponse (par exemple, un message d'erreur différent ou un code de statut HTTP spécifique), vous pourrez identifier quel mot de passe a permis de réussir la connexion. Si un mot de passe valide est trouvé, vous aurez accès au compte administrateur.
+
+2. **Identification du mot de passe vulnérable** :
+   - L'attaque de force brute montre l'importance de la complexité des mots de passe. Un mot de passe simple et couramment utilisé (comme un mot de passe de la liste `best1050.txt`) peut facilement être deviné par un attaquant utilisant cette méthode.
+
+## Pourquoi cette étape est importante ?
+
+Cette étape met en lumière les dangers des mots de passe faibles, en particulier pour les comptes avec des privilèges élevés (comme le compte administrateur). Même si l'email et le nom d'utilisateur sont protégés, un mot de passe faible peut facilement permettre à un attaquant d'accéder à des comptes sensibles. Ainsi, il est necessaire d'avoir une politique de mots de passes robustes pour une site web.
+
+## Résumé des étapes
+
+- **Objectif** : Se connecter au compte administrateur en utilisant Burp Suite Intruder et une liste de mots de passe (`best1050.txt`).
+- **Méthode** :
+  - Interception de la requête de connexion via Burp Suite.
+  - Configuration de Burp Suite Intruder pour envoyer des requêtes de force brute avec la liste de mots de passe.
+  - Analyse des réponses du serveur pour identifier un mot de passe valide.
+
 
