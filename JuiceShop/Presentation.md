@@ -187,4 +187,53 @@ Les bonnes pratiques pour éviter l'exposition de données sensibles incluent :
   - Téléchargement de fichiers sensibles ou accès à des fichiers mal sécurisés (par exemple, sauvegardes, fichiers de configuration).
   - Analyse des risques d'exposition de données sensibles et réflexion sur les mesures de sécurité nécessaires.
 
+# Cinquième étape de l'investigation : Contourner les restrictions de téléchargement avec Poison Null Byte
+
+## Objectif
+
+Dans cette étape, nous allons tenter de contourner la restriction qui empêche le téléchargement de certains fichiers, en utilisant une technique appelée **Poison Null Byte**. Cette méthode nous permet de manipuler l'URL pour contourner la restriction de type de fichier et accéder à des informations sensibles qui étaient autrement bloquées.
+
+## Étape 1 : Analyser le problème de téléchargement
+
+Lorsque vous tentez de télécharger le fichier **`package.json.bak`** situé dans le répertoire **`/ftp/`**, vous obtenez une erreur **403 - Forbidden**, ce qui signifie que le serveur interdit l'accès à ce fichier. Le message d'erreur indique également que seuls les fichiers avec les extensions **.md** et **.pdf** sont autorisés au téléchargement.
+
+## Étape 2 : Comprendre la technique du Poison Null Byte
+
+Le **Poison Null Byte** est un exploit basé sur un caractère spécial appelé **byte nul** (noté **`%00`** dans les URL). Ce caractère est un **terminateur de chaîne** dans de nombreux systèmes et langages de programmation. Cela signifie que lorsqu'un byte nul est rencontré, le système considère que la chaîne de caractères (comme un nom de fichier ou une URL) se termine à cet endroit.
+
+En insérant un Poison Null Byte dans le nom du fichier que nous tentons de télécharger, nous pouvons tromper le serveur. Le Poison Null Byte va forcer le serveur à **ignorer la partie de l'extension du fichier après ce caractère**. Par exemple, en ajoutant un Poison Null Byte après **`package.json`**, le serveur pourrait ne voir que **`package.json`**, mais avec une extension autorisée comme **`.md`**.
+
+## Étape 3 : Appliquer l'encodage URL au Poison Null Byte
+
+Dans une URL, un Poison Null Byte (qui est normalement écrit **`%00`**) doit être encodé pour être correctement transmis. Le Poison Null Byte encodé en URL est **`%2500`**.
+
+## Étape 4 : Manipuler l'URL pour contourner la restriction
+
+Pour contourner la restriction de téléchargement des fichiers, modifions l'URL de la manière suivante :
+
+1. L'URL initiale pour télécharger le fichier **`package.json.bak`** serait quelque chose comme :
+
+    ```
+    http://10.10.90.39/ftp/package.json.bak
+    ```
+
+2. Pour contourner la restriction des extensions, nous allons ajouter le Poison Null Byte encodé en URL **`%2500`** à la fin du nom du fichier, puis ajouter une extension **`.md`** à la fin. Cela donnera :
+
+    ```
+    http://10.10.90.39/ftp/package.json.bak%2500.md
+    ```
+
+## Étape 5 : Télécharger le fichier
+
+En accédant à l'URL modifiée, le serveur va traiter le nom du fichier comme **`package.json.md`** au lieu de **`package.json.bak`**, car le Poison Null Byte force le serveur à ignorer la partie après le byte nul. Le fichier sera alors téléchargé avec l'extension **`.md`**, qui est autorisée, même si l'extension réelle du fichier est **`.bak`**.
+
+## Pourquoi cette méthode fonctionne-elle ?
+
+Cette méthode fonctionne grâce au comportement des **terminateurs de chaîne** dans de nombreux systèmes de fichiers et langages de programmation. Le byte nul **`%00`** est utilisé pour signaler la fin de la chaîne de caractères, ce qui permet de tronquer l'URL à ce point précis. En encodant ce byte nul en **`%2500`** (l'encodage URL du byte nul), nous pouvons manipuler l'URL de manière à faire en sorte que le serveur ignore la partie du nom de fichier après le Poison Null Byte, contournant ainsi les restrictions de téléchargement.
+
+## Conclusion
+
+Le Poison Null Byte est une technique puissante pour contourner les restrictions sur les types de fichiers téléchargés. Dans cette étape, vous avez vu comment cette technique permet de tromper le serveur et de télécharger un fichier normalement interdit, en exploitant une faiblesse dans la manière dont les systèmes traitent les chaînes de caractères et les extensions de fichiers.
+
+Cela illustre l'importance de vérifier et de sécuriser correctement les mécanismes de validation des fichiers et des entrées utilisateurs afin d'éviter des vulnérabilités telles que l'**exploitation de données sensibles**.
 
