@@ -173,7 +173,7 @@ L'objectif de cette étape est d'illustrer la notion d'**exposition de données 
 L'exposition de données sensibles est une vulnérabilité critique qui peut entraîner des conséquences graves, telles que le vol d'identité, la fraude financière, ou la compromission de systèmes sensibles. Les entreprises doivent être conscientes des risques associés à l'exposition non intentionnelle de données sensibles et mettre en œuvre des mécanismes de sécurité solides pour protéger ces informations.
 
 Les bonnes pratiques pour éviter l'exposition de données sensibles incluent :
-- **Cryptage des données sensibles** en transit (SSL/TLS) et au repos (base de données cryptées).
+- **Chiffrement des données sensibles** en transit (SSL/TLS) et au repos (base de données cryptées).
 - **Contrôles d'accès stricts** pour limiter les utilisateurs autorisés à accéder à des données sensibles.
 - **Mise en œuvre de l'authentification forte** pour les utilisateurs qui accèdent à des informations sensibles.
 - **Validation des permissions** et sécurisation des répertoires et fichiers sensibles pour empêcher leur accès non autorisé.
