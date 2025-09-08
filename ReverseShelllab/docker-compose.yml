@@ -1,0 +1,26 @@
+# Mise en place de deux services :
+# 1- Une VM Kali correspondant à l'ordinateur de l'attaquant
+# 2- Une VM Victim que l'on va tenter d'exploiter
+
+services:
+  kali: #La VM Kali
+    build: ./kali #Permet d'utiliser le Dockerfile du dossier kali
+    container_name: kali
+    tty: true #Permet la persistance du containeur
+    stdin_open: true
+    networks: #On se place dans un réseau (le même que la victime)
+      - lab-net
+  
+  victim: #La VM de la victim
+    build: ./victim
+    container_name: victim
+    tty: true
+    stdin_open: true
+    networks:
+      - lab-net
+
+#Définition du réseau interne permettant la communication des deux containeurs
+networks:
+  lab-net:
+    driver: bridge
+   
