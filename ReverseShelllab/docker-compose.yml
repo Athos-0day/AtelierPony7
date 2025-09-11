@@ -1,11 +1,12 @@
 # Mise en place de deux services :
-# 1- Une VM Kali correspondant à l'ordinateur de l'attaquant
+# 1- Une VM Ubuntu correspondant à l'ordinateur de l'attaquant
 # 2- Une VM Victim que l'on va tenter d'exploiter
+# 3- Une VM Serveur Web qui permet d'essayer de lancer un reverse shell à partir d'un php (MIME)
 
 services:
-  kali: #La VM Kali
-    build: ./kali #Permet d'utiliser le Dockerfile du dossier kali
-    container_name: kali
+  attacker: #La VM Kali
+    build: ./attacker #Permet d'utiliser le Dockerfile du dossier kali
+    container_name: attacker
     tty: true #Permet la persistance du containeur
     stdin_open: true
     networks: #On se place dans un réseau (le même que la victime)
@@ -13,7 +14,16 @@ services:
   
   victim: #La VM de la victim
     build: ./victim
+    privileged: true
     container_name: victim
+    tty: true
+    stdin_open: true
+    networks:
+      - lab-net
+
+  serverweb: #La vm du server web
+    build: ./server_web
+    container_name: server_web
     tty: true
     stdin_open: true
     networks:
