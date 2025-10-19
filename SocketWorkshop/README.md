@@ -255,6 +255,8 @@ Participants connect to a server that sends a plaintext flag together with an EC
 3. Verify the signature using the received public key.
 4. If the signature is valid, display the flag.
 
+PORT = 9004
+
 This challenge uses Python 3.8+ (works on 3.7 but modern versions recommended). The following Python package is required:
 
 - `cryptography` — for ECDSA key handling and verification.
