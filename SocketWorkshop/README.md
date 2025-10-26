@@ -47,9 +47,12 @@ For this workshop, we are going to use mainly *python* which is more user-friend
 
 For an interactive experience during the workshop, your task is to locate all the flags in the challenges and validate them via the web platform at:
 
-http://local-network-ip:8080
+http://local-network-ip:8000
 
-To start the platform and challenges, the facilitator must run the launch_workshop.sh script.
+To start the platform and challenges, the facilitator must run :
+```bash
+docker compose up -d --build
+```
 
 ## First challenge : time to hands on
 
