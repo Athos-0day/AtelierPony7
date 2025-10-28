@@ -20,7 +20,7 @@ services:
     build: ./ServerChallenge/challenge1
     container_name: challenge1
     ports:
-      - "9001:5000"
+      - "0.0.0.0:9001:9001"
     networks:
       - ctfnet
 
@@ -28,23 +28,23 @@ services:
     build: ./ServerChallenge/challenge2
     container_name: challenge2
     ports:
-      - "9002:5000"
+      - "0.0.0.0:9002:9002"
     networks:
       - ctfnet
 
   challenge3:
     build: ./ServerChallenge/challenge3
     container_name: challenge3
+    network_mode: host   
+    restart: unless-stopped
     ports:
-      - "9999:5000"
-    networks:
-      - ctfnet
+      - "0.0.0.0:9999:9999"
 
   challenge4:
     build: ./ServerChallenge/challenge4
     container_name: challenge4
     ports:
-      - "9003:5000"
+      - "0.0.0.0:9003:9003"
     networks:
       - ctfnet
   
@@ -52,7 +52,7 @@ services:
     build: ./ServerChallenge/challenge5
     container_name: challenge5
     ports: 
-      - "9004:5000"
+      - "0.0.0.0:9004:9004"
     networks:
       - ctfnet
 
